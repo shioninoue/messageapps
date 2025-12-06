@@ -1,0 +1,186 @@
+/* 全体レイアウト */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+  background-color: #e5e5e5;
+}
+
+.chat-wrapper {
+  max-width: 480px; /* スマホっぽい横幅 */
+  height: 100vh; /* 画面いっぱい */
+  margin: 0 auto;
+  background-color: #cfd8dc;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* ヘッダー（上の緑のバー） */
+.chat-header {
+  background-color: #06c755; /* LINEっぽい緑 */
+  color: #fff;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-header-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.chat-header-status {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* メッセージエリア */
+.chat-main {
+  flex: 1;
+  background-image: linear-gradient(
+    135deg,
+    #e8f5e9 0%,
+    #e3f2fd 50%,
+    #fffde7 100%
+  );
+  padding: 8px;
+  overflow: hidden;
+}
+
+.chat-messages {
+  height: 100%;
+  overflow-y: auto;
+  padding: 8px 4px 16px;
+}
+
+/* 各メッセージ */
+.message {
+  max-width: 80%;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 友だちメッセージ（左） */
+.other-message {
+  align-items: flex-start;
+}
+
+/* 自分メッセージ（右） */
+.my-message {
+  align-items: flex-end;
+}
+
+/* 名前＋削除ボタン */
+.message-name {
+  font-size: 11px;
+  color: #555;
+  margin: 0 4px 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 吹き出し */
+.message-bubble {
+  padding: 8px 10px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* 左（相手）吹き出し */
+.other-message .message-bubble {
+  background-color: #ffffff;
+  border-bottom-left-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* 右（自分）吹き出し */
+.my-message .message-bubble {
+  background-color: #06c755;
+  color: #fff;
+  border-bottom-right-radius: 2px;
+}
+
+/* 削除ボタン */
+.delete-btn {
+  border: none;
+  background: transparent;
+  font-size: 10px;
+  color: #999;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.delete-btn:hover {
+  color: #e53935;
+}
+
+/* 入力エリア */
+.chat-input-area {
+  border-top: 1px solid #cfd8dc;
+  background-color: #fafafa;
+  padding: 6px 8px;
+}
+
+.chat-name-row {
+  margin-bottom: 4px;
+}
+
+.chat-name-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 16px;
+  border: 1px solid #cfd8dc;
+  font-size: 12px;
+  outline: none;
+}
+
+/* メッセージ入力 + 送信ボタン */
+.chat-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.chat-textarea {
+  flex: 1;
+  resize: none;
+  border-radius: 16px;
+  border: 1px solid #cfd8dc;
+  padding: 8px 10px;
+  font-size: 14px;
+  height: 44px;
+  max-height: 120px;
+  outline: none;
+}
+
+/* スクロールバーを少し細く（PC用） */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.chat-send-btn {
+  border: none;
+  background-color: #06c755;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chat-send-btn:hover {
+  opacity: 0.9;
+}

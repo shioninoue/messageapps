@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LINE風チャットアプリ</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <div class="chat-wrapper">
+      <!-- 上部の緑ヘッダー -->
+      <header class="chat-header">
+        <div class="chat-header-title">チャット</div>
+        <div class="chat-header-status">オンライン</div>
+      </header>
+
+      <!-- メッセージ表示エリア -->
+      <main class="chat-main">
+        <div id="output" class="chat-messages"></div>
+      </main>
+
+      <!-- 入力エリア（名前入力は削除） -->
+      <footer class="chat-input-area">
+        <div class="chat-input-row">
+          <textarea
+            id="text"
+            class="chat-textarea"
+            placeholder="メッセージを入力"
+          ></textarea>
+          <button id="send" class="chat-send-btn">送信</button>
+        </div>
+      </footer>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- Firebase & アプリの処理 -->
+    <script type="module">
+      // Firebase SDK
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        push,
+        set,
+        onChildAdded,
+        remove,
+        onChildRemoved,
+      } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js";
+
+      // Firebase 設定
+      const firebaseConfig = {
+        apiKey: "AIzaSyDcUqzOuvVbrYfffoDdcmzFNZVDduQqMhI",
+        authDomain: "dev30-f18-7671c.firebaseapp.com",
+        projectId: "dev30-f18-7671c",
+        storageBucket: "dev30-f18-7671c.firebasestorage.app",
+        messagingSenderId: "719735541252",
+        appId: "1:719735541252:web:4d27b21061e92db7a9af51",
+      };
+
+      // Firebase 初期化
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      const dbRef = ref(db, "chat");
+
+      // 🔑 ブラウザごとに一意な自分のIDを作成（＝自分判定に使う）
+      let myUid = localStorage.getItem("chatUid");
+      if (!myUid) {
+        myUid = Math.random().toString(36).slice(2);
+        localStorage.setItem("chatUid", myUid);
+      }
+
+      // ---------------------------
+      // 送信処理（自分がメッセージを送る）
+      // ---------------------------
+      function sendMessage() {
+        const text = $("#text").val().trim();
+        if (!text) return;
+
+        const msg = {
+          uid: myUid, // 自分のID
+          text: text, // メッセージ本文
+          createdAt: Date.now(),
+        };
+
+        const newPostRef = push(dbRef);
+        set(newPostRef, msg);
+
+        $("#text").val(""); // 入力欄クリア
+      }
+
+      // 送信ボタンクリック
+      $("#send").on("click", function () {
+        sendMessage();
+      });
+
+      // Enterキーで送信（Shift+Enterは改行）
+      $("#text").on("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      // ---------------------------
+      // 表示処理（送信 / 受信を分けて描画）
+      // ---------------------------
+
+      // 自分のメッセージ（送信）
+      function renderSentMessage(msg, key) {
+        const html = `
+          <div class="message my-message" data-key="${key}">
+            <div class="message-name">
+              自分
+              <button class="delete-btn" data-key="${key}">削除</button>
+            </div>
+            <div class="message-bubble">${msg.text}</div>
+          </div>
+        `;
+        $("#output").append(html);
+      }
+
+      // 相手のメッセージ（受信）
+      function renderReceivedMessage(msg, key) {
+        const html = `
+          <div class="message other-message" data-key="${key}">
+            <div class="message-name">相手</div>
+            <div class="message-bubble">${msg.text}</div>
+          </div>
+        `;
+        $("#output").append(html);
+      }
+
+      // DBにメッセージが追加されたとき（リアルタイム受信）
+      onChildAdded(dbRef, function (snapshot) {
+        const msg = snapshot.val();
+        const key = snapshot.key;
+
+        const isMine = msg.uid === myUid; // 自分か相手かを判定
+
+        if (isMine) {
+          renderSentMessage(msg, key); // 自分のメッセージ
+        } else {
+          renderReceivedMessage(msg, key); // 相手のメッセージ
+        }
+
+        // 一番下までスクロール
+        const $output = $("#output");
+        $output.scrollTop($output[0].scrollHeight);
+      });
+
+      // ---------------------------
+      // 自分のメッセージ削除
+      // ---------------------------
+
+      // 削除ボタンが押されたとき
+      $("#output").on("click", ".delete-btn", function () {
+        const key = $(this).data("key");
+        const msgRef = ref(db, `chat/${key}`);
+
+        const ok = window.confirm("このメッセージを削除しますか？");
+        if (!ok) return;
+
+        remove(msgRef); // DBから削除
+      });
+
+      // DBから削除されたら画面からも削除
+      onChildRemoved(dbRef, function (snapshot) {
+        const key = snapshot.key;
+        $(`.message[data-key="${key}"]`).remove();
+      });
+    </script>
+  </body>
+</html>
